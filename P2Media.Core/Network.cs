@@ -1,4 +1,4 @@
 ﻿namespace P2Media.Core;
-public class Class1 {
+public class Network {
 
 }
