@@ -30,6 +30,8 @@ public class Server : IDisposable {
 
 	public async Task TraverseAsync() {
 		TcpClient client = await _listener.AcceptTcpClientAsync();
-		ConnectedClients.Add(client);
+		if (!ConnectedClients.Contains(client)) ConnectedClients.Add(client);
 	}
+
+	
 }
