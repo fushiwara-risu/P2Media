@@ -1,5 +1,6 @@
 using P2Media.Core;
 using System.Net;
+using System.Net.Sockets;
 
 namespace P2Media.Tests;
 
@@ -10,42 +11,46 @@ public class NetworkTests {
 
 	[Fact]
 	public void ServerCreation() {
-		Server server = new(_serverEP);
+		Node server = new(_serverEP);
 		Assert.NotNull(server);
 	}
 
 	[Fact]
 	public void ClientCreation() {
-		Client client = new(_clientEP);
+		Node client = new(_clientEP);
 		Assert.NotNull(client);
 	}
 
 	[Fact]
 	public async Task LocalClientLocalServerConnect() {
-		Server server = new(_serverEP);
-		Client client = new(_clientEP);
+		Node server = new(_serverEP);
+		Node client = new(_clientEP);
 
 		await client.ConnectAsync(_serverEP);
-		await server.TraverseAsync();
+		await server.AcceptConnectionAsync();
 
-		Assert.NotEmpty(server.ConnectedClients);
+		Assert.NotEmpty(server.ConnectedPeers);
 		Assert.NotEmpty(client.ConnectedPeers);
 	}
 
 	[Fact]
 	public async Task LocalClientObtainLocalServerConnections() {
-		Server server = new(_serverEP);
-		List<Client> Clients = new();
+		Node server = new(_serverEP);
+		List<Node> Clients = new();
 		for (int i = 0; i < 5; i++) {
 			Clients.Add(new(new(IPAddress.Loopback, 8060 + i)));
 		}
-		foreach (Client client in Clients) {
+		foreach (Node client in Clients) {
 			await client.ConnectAsync(_serverEP);
-			await server.TraverseAsync();
+			await server.AcceptConnectionAsync();
 		}
 
-		Client c1 = new(_clientEP);
-
+		Node c1 = new(_clientEP);
+		await c1.ConnectAsync(_serverEP);
+		await server.AcceptConnectionAsync();
+		foreach (TcpClient x in server.ConnectedPeers) c1.ConnectedPeers.Add(x);
+		
+		Assert.Equal(7, c1.ConnectedPeers.Count);
 	}
 
 	[Fact]
