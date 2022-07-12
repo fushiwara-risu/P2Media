@@ -11,15 +11,14 @@ public class Node: IDisposable {
 		Start();
 	}
 
-	~Node() => Dispose();
-	
-	public void Start() => _listener.Start();
-	public void Stop() => _listener.Stop();
 	public void Dispose() {
 		Stop();
 		GC.SuppressFinalize(this);
 	}
 
+	public void Start() => _listener.Start();
+	public void Stop() => _listener.Stop();
+	
 	public async Task<TcpClient> AcceptConnectionAsync() {
 		TcpClient client = await _listener.AcceptTcpClientAsync();
 		if (!ConnectedPeers.Contains(client)) ConnectedPeers.Add(client);

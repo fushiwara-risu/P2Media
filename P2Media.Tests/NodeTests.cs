@@ -13,12 +13,14 @@ public class NodeTests {
 	public void ServerCreation() {
 		Node server = new(_serverEP);
 		Assert.NotNull(server);
+		server.Dispose();
 	}
 
 	[Fact]
 	public void ClientCreation() {
 		Node client = new(_clientEP);
 		Assert.NotNull(client);
+		client.Dispose();
 	}
 
 	[Fact]
@@ -31,16 +33,18 @@ public class NodeTests {
 
 		Assert.NotEmpty(server.ConnectedPeers);
 		Assert.NotEmpty(client.ConnectedPeers);
+		server.Dispose();
+		client.Dispose();
 	}
 
 	[Fact]
 	public async Task LocalClientObtainLocalServerConnections() {
 		Node server = new(_serverEP);
-		List<Node> Clients = new();
+		List<Node> clients = new();
 		for (int i = 0; i < 5; i++) {
-			Clients.Add(new(new(IPAddress.Loopback, 8060 + i)));
+			clients.Add(new(new(IPAddress.Loopback, 8060 + i)));
 		}
-		foreach (Node client in Clients) {
+		foreach (Node client in clients) {
 			await client.ConnectAsync(_serverEP);
 			await server.AcceptConnectionAsync();
 		}
@@ -51,6 +55,11 @@ public class NodeTests {
 		foreach (TcpClient x in server.ConnectedPeers) c1.ConnectedPeers.Add(x);
 		
 		Assert.Equal(7, c1.ConnectedPeers.Count);
+		server.Dispose();
+		c1.Dispose();
+		foreach (Node client in clients) {
+			client.Dispose();
+		}
 	}
 
 	[Fact]
