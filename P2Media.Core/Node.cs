@@ -16,7 +16,7 @@ public class Node: IDisposable {
 	public void Start() => _listener.Start();
 	public void Stop() => _listener.Stop();
 	public void Dispose() {
-		_listener.Stop();
+		Stop();
 		GC.SuppressFinalize(this);
 	}
 
